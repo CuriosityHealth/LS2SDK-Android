@@ -9,10 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/rsrpsupport" />
-            <option value="$PROJECT_DIR$/rssupport" />
-            <option value="$PROJECT_DIR$/rstbsupport" />
+            <option value="$PROJECT_DIR$/ls2sdk" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

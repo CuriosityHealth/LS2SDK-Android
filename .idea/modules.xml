@@ -4,10 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/LS2SDK-Android.iml" filepath="$PROJECT_DIR$/LS2SDK-Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rsrpsupport/rsrpsupport.iml" filepath="$PROJECT_DIR$/rsrpsupport/rsrpsupport.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rssupport/rssupport.iml" filepath="$PROJECT_DIR$/rssupport/rssupport.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rstbsupport/rstbsupport.iml" filepath="$PROJECT_DIR$/rstbsupport/rstbsupport.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ls2sdk/ls2sdk.iml" filepath="$PROJECT_DIR$/ls2sdk/ls2sdk.iml" />
     </modules>
   </component>
 </project>

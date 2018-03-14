@@ -4,16 +4,16 @@
 ext {
     bintrayRepo = 'maven'
     bintrayName = POM_BINTRAY_NAME
-    userOrgName = 'org-researchsuite'
+    userOrgName = 'com-curiosityhealth'
 
-    publishedGroupId = 'org.researchsuite'
-    libraryName = 'Ohmage-OMH'
+    publishedGroupId = 'com.curiosityhealth'
+    libraryName = 'LS2SDK'
     artifact = POM_ARTIFACT_ID
     packagingType = POM_PACKAGING
 
     libraryDescription = POM_DESCRIPTION
 
-    siteUrl = 'https://curiousityhealth.com'
+    siteUrl = 'https://curiosityhealth.com'
     gitUrl = 'https://github.com/jdkizer9/LS2SDK-Android.git'
 
     libraryVersion = POM_VERSION
