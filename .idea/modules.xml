@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/LS2SDK-Android.iml" filepath="$PROJECT_DIR$/LS2SDK-Android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rsrpsupport/rsrpsupport.iml" filepath="$PROJECT_DIR$/rsrpsupport/rsrpsupport.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rssupport/rssupport.iml" filepath="$PROJECT_DIR$/rssupport/rssupport.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rstbsupport/rstbsupport.iml" filepath="$PROJECT_DIR$/rstbsupport/rstbsupport.iml" />
+    </modules>
+  </component>
+</project>
