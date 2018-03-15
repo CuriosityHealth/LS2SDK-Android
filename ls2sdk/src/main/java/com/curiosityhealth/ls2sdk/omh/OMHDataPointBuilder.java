@@ -1,11 +1,6 @@
-package com.curiosityhealth.ls2sdk.core;
+package com.curiosityhealth.ls2sdk.omh;
 
 import android.support.annotation.Nullable;
-
-//import com.google.gson.Gson;
-//import com.google.gson.JsonObject;
-//import com.google.gson.JsonPrimitive;
-
 
 import org.json.JSONObject;
 

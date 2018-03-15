@@ -1,4 +1,4 @@
-package com.curiosityhealth.ls2sdk.core;
+package com.curiosityhealth.ls2sdk.omh;
 
 /**
  * Created by jameskizer on 2/2/17.

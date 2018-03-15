@@ -1,4 +1,4 @@
-package com.curiosityhealth.ls2sdk.core;
+package com.curiosityhealth.ls2sdk.omh;
 
 import java.util.Date;
 

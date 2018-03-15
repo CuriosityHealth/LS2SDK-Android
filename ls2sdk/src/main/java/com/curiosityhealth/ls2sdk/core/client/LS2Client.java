@@ -1,10 +1,5 @@
 package com.curiosityhealth.ls2sdk.core.client;
 
-import android.net.Uri;
-import android.util.Base64;
-import android.util.Log;
-
-import com.curiosityhealth.ls2sdk.core.OMHDataPoint;
 import com.curiosityhealth.ls2sdk.core.client.exception.*;
 
 import org.json.JSONException;
@@ -17,13 +12,11 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okio.BufferedSink;
 
 /**
  * Created by jameskizer on 3/14/18.

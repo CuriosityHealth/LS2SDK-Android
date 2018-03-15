@@ -2,9 +2,11 @@ package com.curiosityhealth.ls2sdk.core.manager;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.curiosityhealth.ls2sdk.core.client.LS2Client;
 import com.curiosityhealth.ls2sdk.core.manager.exception.LS2ManagerAlreadySignIn;
+import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
 import com.squareup.tape.FileObjectQueue;
 import com.squareup.tape.ObjectQueue;
 
@@ -250,6 +252,27 @@ public class LS2Manager {
         }
     }
 
+
+    public void addDatapoint(final OMHDataPoint datapoint, final Completion completion) {
+
+//        if (!this.isSignedIn()) {
+//            completion.onCompletion(new OhmageOMHNotSignedIn());
+//            return;
+//        }
+//
+//        if (!this.client.validateSample(datapoint)) {
+//            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.toJson().toString());
+////            Log.w(TAG, datapoint);
+//            completion.onCompletion(new OhmageOMHInvalidSample());
+//            return;
+//        }
+//
+//        //add datapoint
+//        //this should notify the listener, which should start the upload
+//        String datapointString = datapoint.toJson().toString();
+//        this.ohmageOMHDatapointQueue.add(datapointString);
+
+    }
 
 
     public void upload() {
