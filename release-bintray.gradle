@@ -4,7 +4,7 @@
 ext {
     bintrayRepo = 'maven'
     bintrayName = POM_BINTRAY_NAME
-    userOrgName = 'com-curiosityhealth'
+    userOrgName = 'curiosityhealth'
 
     publishedGroupId = 'com.curiosityhealth'
     libraryName = 'LS2SDK'

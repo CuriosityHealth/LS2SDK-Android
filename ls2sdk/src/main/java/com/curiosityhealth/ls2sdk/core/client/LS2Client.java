@@ -1,6 +1,9 @@
 package com.curiosityhealth.ls2sdk.core.client;
 
+import android.util.Log;
+
 import com.curiosityhealth.ls2sdk.core.client.exception.*;
+import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -187,117 +190,112 @@ public class LS2Client {
         };
     }
 
-//    public boolean validateSample(OMHDataPoint sample) {
-//        boolean isValid = this.validateSampleJson(sample.toJson());
-//        return isValid;
-//    }
-//
-//    public boolean validateSampleJson(JSONObject sampleJson) {
-//        try {
-//            String sampleJsonString = sampleJson.toString();
-//            Log.i(TAG, "validating json" + sampleJsonString);
-//            JSONObject recodedJson = new JSONObject(sampleJsonString);
-//            return true;
-//        } catch (JSONException ex) {
-//            return false;
-//        } catch (NullPointerException e) {
-//            return false;
-//        }
-//    }
-//
-//    public void postSample(JSONObject sampleJson, String accessToken, final PostSampleCompletion completion) {
-//
-//        this.postJSONSample(sampleJson, accessToken, completion);
-//
-//    }
-//
-//    public void postSample(String sampleString, String accessToken, final PostSampleCompletion completion) {
-//
-//        this.postStringSample(sampleString, accessToken, completion);
-//
-//    }
-//
-//    private void postJSONSample(JSONObject sampleJson, String accessToken, final PostSampleCompletion completion) {
-//
-//        String jsonString = sampleJson.toString();
-//        RequestBody body = RequestBody.create(JSON, jsonString);
-//        Request request = new Request.Builder()
-//                .url(this.baseURL + "/dataPoints")
-//                .header("Authorization", "Bearer " + accessToken)
-//                .post(body)
-//                .build();
-//
-//        client.newCall(request).enqueue(this.processJSONResponse(completion));
-//    }
-//
-//    private void postStringSample(String jsonString, String accessToken, final PostSampleCompletion completion) {
-//
-//        RequestBody body = RequestBody.create(JSON, jsonString);
-//        Request request = new Request.Builder()
-//                .url(this.baseURL + "/dataPoints")
-//                .header("Authorization", "Bearer " + accessToken)
-//                .post(body)
-//                .build();
-//
-//        client.newCall(request).enqueue(this.processJSONResponse(completion));
-//    }
-//
-//    private Callback processJSONResponse(final PostSampleCompletion completion) {
-//        return new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                if (e instanceof UnknownHostException) {
-//                    completion.onCompletion(false, new LS2ClientUnreachable(e));
-//                }
-//                else {
-//                    completion.onCompletion(false, new LS2ClientOtherException(e));
-//                }
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//
-//                int responseCode = response.code();
-//
-//                if (response.isSuccessful() && responseCode == 201) {
-//                    completion.onCompletion(true, null);
-//                    return;
-//                }
-//                else if (responseCode == 409) {
-//                    completion.onCompletion(false, new LS2ClientDataPointConflict());
-//                    return;
-//                }
-//                else if (responseCode == 502) {
-//                    completion.onCompletion(false, new LS2ClientBadGateway());
-//                    return;
-//                }
-//                else {
-//                    String responseBody = "";
-//                    try {
-//                        responseBody = response.body().string();
-//                        JSONObject responseJson = new JSONObject(responseBody);
-//
-//                        String error = responseJson.getString("error");
-////                        String errorDescription = responseJson.getString("error_description");
-//
-//                        if (error.equals("invalid_token")) {
-//                            completion.onCompletion(false, new LS2ClientInvalidAccessToken());
-//                            return;
-//                        }
-//                        else {
-//                            completion.onCompletion(false, new LS2ClientMalformedResponse(responseBody));
-//                            return;
-//                        }
-//
-//                    } catch (JSONException e) {
-////                        Log.e(TAG, "Fail to parse response from omh-sign-in endpoint:" + responseBody, e);
-//                        completion.onCompletion(false, new LS2ClientMalformedResponse(responseBody));
-//                        return;
-//                    }
-//                }
-//
-//            }
-//        };
-//    }
+    public boolean validateSample(OMHDataPoint sample) {
+        boolean isValid = this.validateSampleJson(sample.toJson());
+        return isValid;
+    }
+
+    public boolean validateSampleJson(JSONObject sampleJson) {
+        try {
+            String sampleJsonString = sampleJson.toString();
+            Log.i(TAG, "validating json" + sampleJsonString);
+            JSONObject recodedJson = new JSONObject(sampleJsonString);
+            return true;
+        } catch (JSONException ex) {
+            return false;
+        } catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    public void postSample(JSONObject sampleJson, String authToken, final PostSampleCompletion completion) {
+
+        this.postJSONSample(sampleJson, authToken, completion);
+
+    }
+
+    public void postSample(String sampleString, String authToken, final PostSampleCompletion completion) {
+
+        this.postStringSample(sampleString, authToken, completion);
+
+    }
+
+    private void postJSONSample(JSONObject sampleJson, String authToken, final PostSampleCompletion completion) {
+
+        String jsonString = sampleJson.toString();
+        RequestBody body = RequestBody.create(JSON, jsonString);
+        Request request = new Request.Builder()
+                .url(this.baseURL + "/dataPoints")
+                .header("Authorization", "Token " + authToken)
+                .header("Accept", "application/json")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(this.processJSONResponse(completion));
+    }
+
+    private void postStringSample(String jsonString, String authToken, final PostSampleCompletion completion) {
+
+        RequestBody body = RequestBody.create(JSON, jsonString);
+        Request request = new Request.Builder()
+                .url(this.baseURL + "/dataPoints")
+                .header("Authorization", "Token " + authToken)
+                .header("Accept", "application/json")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(this.processJSONResponse(completion));
+    }
+
+    private Callback processJSONResponse(final PostSampleCompletion completion) {
+        return new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (e instanceof UnknownHostException) {
+                    completion.onCompletion(false, new LS2ClientUnreachable(e));
+                }
+                else {
+                    completion.onCompletion(false, new LS2ClientOtherException(e));
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+                int responseCode = response.code();
+
+                if (response.isSuccessful() && responseCode == 201) {
+                    completion.onCompletion(true, null);
+                    return;
+                }
+                else if (responseCode == 400){
+                    completion.onCompletion(false, new LS2ClientInvalidDataPoint());
+                    return;
+                }
+                else if (responseCode == 401){
+                    completion.onCompletion(false, new LS2ClientInvalidAuthToken());
+                    return;
+                }
+                else if (responseCode == 409) {
+                    completion.onCompletion(false, new LS2ClientDataPointConflict());
+                    return;
+                }
+                else if (responseCode == 500) {
+                    completion.onCompletion(false, new LS2ClientServerException());
+                    return;
+                }
+                else if (responseCode == 502) {
+                    completion.onCompletion(false, new LS2ClientBadGateway());
+                    return;
+                }
+                else {
+                    String responseBody = response.body().string();
+                    completion.onCompletion(false, new LS2ClientMalformedResponse(responseBody));
+                    return;
+                }
+
+            }
+        };
+    }
 
 }

@@ -1,11 +1,15 @@
 package com.curiosityhealth.ls2sdk.core.manager;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.curiosityhealth.ls2sdk.core.client.LS2Client;
+import com.curiosityhealth.ls2sdk.core.client.exception.LS2ClientDataPointConflict;
+import com.curiosityhealth.ls2sdk.core.client.exception.LS2ClientInvalidDataPoint;
 import com.curiosityhealth.ls2sdk.core.manager.exception.LS2ManagerAlreadySignIn;
+import com.curiosityhealth.ls2sdk.core.manager.exception.LS2ManagerNotSignedIn;
 import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
 import com.squareup.tape.FileObjectQueue;
 import com.squareup.tape.ObjectQueue;
@@ -158,6 +162,14 @@ public class LS2Manager {
 
     }
 
+    public void setCredentialStoreUnlocked(boolean credentialStoreUnlocked) {
+        this.credentialStoreUnlocked = credentialStoreUnlocked;
+        if (credentialStoreUnlocked) {
+            this.getAuthToken();
+            this.upload();
+        }
+    }
+
     public boolean isSignedIn() {
         synchronized (this.credentialsLock) {
             return this.getAuthToken() != null && !this.getAuthToken().isEmpty();
@@ -255,27 +267,111 @@ public class LS2Manager {
 
     public void addDatapoint(final OMHDataPoint datapoint, final Completion completion) {
 
-//        if (!this.isSignedIn()) {
-//            completion.onCompletion(new OhmageOMHNotSignedIn());
-//            return;
-//        }
-//
-//        if (!this.client.validateSample(datapoint)) {
-//            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.toJson().toString());
-////            Log.w(TAG, datapoint);
-//            completion.onCompletion(new OhmageOMHInvalidSample());
-//            return;
-//        }
-//
-//        //add datapoint
-//        //this should notify the listener, which should start the upload
-//        String datapointString = datapoint.toJson().toString();
-//        this.ohmageOMHDatapointQueue.add(datapointString);
+        if (!this.isSignedIn()) {
+            completion.onCompletion(new LS2ManagerNotSignedIn());
+            return;
+        }
+
+        if (!this.client.validateSample(datapoint)) {
+            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.toJson().toString());
+//            Log.w(TAG, datapoint);
+            completion.onCompletion(new LS2ClientInvalidDataPoint());
+            return;
+        }
+
+        //add datapoint
+        //this should notify the listener, which should start the upload
+        String datapointString = datapoint.toJson().toString();
+        this.datapointQueue.add(datapointString);
 
     }
 
 
-    public void upload() {
+    private void tryToUpload() {
+
+        assert(this.isSignedIn());
+        assert(this.credentialStoreUnlocked);
+
+        synchronized (this.uploadLock) {
+
+            if (this.isUploading) {
+                return;
+            }
+
+            if (this.datapointQueue.size() < 1) {
+                return;
+            }
+
+            this.isUploading = true;
+
+            String datapointString = this.datapointQueue.peek();
+
+            assert(datapointString != null && !datapointString.isEmpty());
+
+            String localAuthToken;
+            synchronized (this.credentialsLock) {
+                localAuthToken = this.getAuthToken();
+            }
+
+            assert(localAuthToken != null && !localAuthToken.isEmpty());
+
+            this.client.postSample(datapointString, localAuthToken, new LS2Client.PostSampleCompletion() {
+                @Override
+                public void onCompletion(boolean success, Exception e) {
+
+//                    OhmageOMHManager.this.isUploading = false;
+
+                    if (success) {
+                        Log.w(TAG, "Datapoint successfully uploaded");
+                        LS2Manager.this.datapointQueue.remove();
+
+                        LS2Manager.this.isUploading = false;
+                        LS2Manager.this.upload();
+                        return;
+                    }
+
+                    Log.e(TAG, "Got an exception trying to upload datapoint", e);
+
+                    if (e instanceof LS2ClientDataPointConflict ||
+                            e instanceof LS2ClientInvalidDataPoint){
+
+                        LS2Manager.this.datapointQueue.remove();
+                        LS2Manager.this.isUploading = false;
+                        LS2Manager.this.upload();
+                        return;
+                    }
+
+                    else {
+                        LS2Manager.this.isUploading = false;
+                        return;
+                    }
+
+                }
+            });
+
+        }
+    }
+
+    private void upload() {
+
+
+        if (!this.credentialStoreUnlocked || !this.isSignedIn()) { return; }
+
+        //start async task here
+
+        class UploadTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                LS2Manager.this.tryToUpload();
+
+                return null;
+
+            }
+        }
+
+        new UploadTask().execute();
 
     }
 

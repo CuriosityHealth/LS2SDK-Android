@@ -2,7 +2,9 @@ package com.curiosityhealth.ls2sdk.rsrp;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
+import com.curiosityhealth.ls2sdk.core.client.LS2Client;
 import com.curiosityhealth.ls2sdk.core.manager.LS2Manager;
 import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
 import com.curiosityhealth.ls2sdk.omh.OMHDefaultTransformer;
@@ -22,6 +24,8 @@ import static android.support.v4.util.Preconditions.checkState;
  */
 
 public class LS2ResultBackend implements RSRPBackEnd {
+
+    final static String TAG = LS2ResultBackend.class.getSimpleName();
 
     private static LS2ResultBackend backEnd= null;
     private static Object backEndLock = new Object();
@@ -67,6 +71,9 @@ public class LS2ResultBackend implements RSRPBackEnd {
                 this.manager.addDatapoint(datapoint, new LS2Manager.Completion() {
                     @Override
                     public void onCompletion(Exception e) {
+                        if (e != null) {
+                            Log.e(TAG, "Got an exception trying to post datapoint", e);
+                        }
 
                     }
                 });
