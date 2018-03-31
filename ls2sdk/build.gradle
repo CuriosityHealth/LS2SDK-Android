@@ -32,10 +32,10 @@ dependencies {
 
     implementation 'org.researchstack:backbone:1.1.2'
 
-    implementation 'org.researchsuite:rstb:0.1.0'
-    implementation 'org.researchsuite:rsrp:0.1.0'
-    implementation 'org.researchsuite:rsuiteextensionscore:0.2.0-SNAPSHOT'
-    implementation 'org.researchsuite:rsuiteextensionsrstb:0.2.0-SNAPSHOT'
+    implementation 'org.researchsuite:rstb:0.2.0'
+    implementation 'org.researchsuite:rsrp:0.2.0'
+    implementation 'org.researchsuite:rsuiteextensionscore:0.2.0'
+    implementation 'org.researchsuite:rsuiteextensionsrstb:0.2.0'
 
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.okhttp3:okhttp:3.7.0'

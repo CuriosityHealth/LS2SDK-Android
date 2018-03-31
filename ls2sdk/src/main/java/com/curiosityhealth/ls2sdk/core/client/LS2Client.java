@@ -2,6 +2,7 @@ package com.curiosityhealth.ls2sdk.core.client;
 
 import android.util.Log;
 
+import com.curiosityhealth.ls2sdk.LS2ParticipantAccountGeneratorCredentials;
 import com.curiosityhealth.ls2sdk.core.client.exception.*;
 import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
 
@@ -28,6 +29,28 @@ import okhttp3.Response;
 public class LS2Client {
 
     final static String TAG = LS2Client.class.getSimpleName();
+
+    public class ParticipantAccountGenerationResponse {
+        private String username;
+        private String password;
+
+        public ParticipantAccountGenerationResponse(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+    }
+
+    public interface GenerationCompletion {
+        void onCompletion(ParticipantAccountGenerationResponse response, Exception e);
+    }
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -61,6 +84,85 @@ public class LS2Client {
 
     public LS2Client(String baseURL) {
         this.baseURL = baseURL;
+    }
+
+    private Callback processGenerationResponse(final GenerationCompletion completion) {
+        return new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if (e instanceof UnknownHostException) {
+                    completion.onCompletion(null, new LS2ClientUnreachable(e));
+                }
+                else {
+                    completion.onCompletion(null, new LS2ClientOtherException(e));
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+                if (response.isSuccessful()) {
+
+                    String responseBody = "";
+                    try {
+                        responseBody = response.body().string();
+                        JSONObject responseJson = new JSONObject(responseBody);
+
+                        String username = responseJson.getString("username");
+                        String password = responseJson.getString("password");
+
+                        if (username != null && password != null) {
+                            completion.onCompletion(new ParticipantAccountGenerationResponse(username, password), null);
+                            return;
+                        }
+
+                        else {
+                            completion.onCompletion(null, new LS2ClientMalformedResponse(responseBody));
+                            return;
+                        }
+
+                    } catch (JSONException e) {
+//                        Log.e(TAG, "Fail to parse response from omh-sign-in endpoint:" + responseBody, e);
+                        completion.onCompletion(null, new LS2ClientMalformedResponse(responseBody));
+                        return;
+                    }
+
+                }
+                else {
+
+                    int responseCode = response.code();
+
+                    if (responseCode == 502) {
+                        completion.onCompletion(null, new LS2ClientBadGateway());
+                        return;
+                    }
+                    else {
+                        completion.onCompletion(null, new LS2ClientServerException());
+                        return;
+                    }
+
+                }
+
+            }
+        };
+    }
+
+
+    public void generateParticipantAccount(LS2ParticipantAccountGeneratorCredentials generatorCredentials, final GenerationCompletion completion) {
+
+        Map<String, String> bodyMap = new HashMap();
+        bodyMap.put("generator_id", generatorCredentials.getGeneratorId());
+        bodyMap.put("generator_password", generatorCredentials.getGeneratorPassword());
+        JSONObject jsonBody = new JSONObject(bodyMap);
+        RequestBody body = RequestBody.create(JSON, jsonBody.toString());
+
+        Request request = new Request.Builder()
+                .url(this.baseURL + "/account/generate")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(this.processGenerationResponse(completion));
+
     }
 
     public void signIn(String username, String password, final AuthCompletion completion) {

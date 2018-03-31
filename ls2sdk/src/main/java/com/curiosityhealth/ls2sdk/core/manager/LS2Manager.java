@@ -5,10 +5,13 @@ import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.curiosityhealth.ls2sdk.LS2ParticipantAccountGeneratorCredentials;
 import com.curiosityhealth.ls2sdk.core.client.LS2Client;
 import com.curiosityhealth.ls2sdk.core.client.exception.LS2ClientDataPointConflict;
 import com.curiosityhealth.ls2sdk.core.client.exception.LS2ClientInvalidDataPoint;
 import com.curiosityhealth.ls2sdk.core.manager.exception.LS2ManagerAlreadySignIn;
+import com.curiosityhealth.ls2sdk.core.manager.exception.LS2ManagerDoesNotHaveCredentials;
+import com.curiosityhealth.ls2sdk.core.manager.exception.LS2ManagerHasCredentials;
 import com.curiosityhealth.ls2sdk.core.manager.exception.LS2ManagerNotSignedIn;
 import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
 import com.squareup.tape.FileObjectQueue;
@@ -74,6 +77,8 @@ public class LS2Manager {
     final static String TAG = LS2Manager.class.getSimpleName();
 
     private static String AUTHENTICATION_TOKEN = "AuthenticationToken";
+    private static String USERNAME = "Username";
+    private static String PASSWORD = "Password";
 
     private static LS2Manager manager = null;
     private static Object managerLock = new Object();
@@ -130,6 +135,33 @@ public class LS2Manager {
         return this.authToken;
     }
 
+    @Nullable
+    private String getUsername() {
+        //if local authToken is null, try to load
+        byte[] usernameData = this.credentialStore.get(context, USERNAME);
+        if (usernameData != null) {
+            String username = new String(usernameData);
+            return username;
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Nullable
+    private String getPassword() {
+        //if local authToken is null, try to load
+        byte[] passwordData = this.credentialStore.get(context, PASSWORD);
+        if (passwordData != null) {
+            String password = new String(passwordData);
+            return password;
+        }
+        else {
+            return null;
+        }
+    }
+
+
     private LS2Manager(Context context, String baseURL, RSCredentialStore store, String queueStorageDirectory) {
 
         this.context = context;
@@ -176,7 +208,30 @@ public class LS2Manager {
         }
     }
 
-    private void setCredentials(String authToken) {
+    public boolean hasCredentials() {
+        synchronized (this.credentialsLock) {
+            byte[] usernameData = this.credentialStore.get(context, USERNAME);
+            byte[] passwordData = this.credentialStore.get(context, PASSWORD);
+            if (usernameData != null && passwordData != null) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    private void setCredentials(String username, String password) {
+        synchronized (this.credentialsLock) {
+            byte[] usernameData = username.getBytes();
+            this.credentialStore.set(context, USERNAME, usernameData);
+
+            byte[] passwordData = password.getBytes();
+            this.credentialStore.set(context, PASSWORD, passwordData);
+        }
+    }
+
+    private void setAuthToken(String authToken) {
         synchronized (this.credentialsLock) {
             this.authToken = authToken;
             byte[] authTokenData = authToken.getBytes();
@@ -192,6 +247,8 @@ public class LS2Manager {
         synchronized (this.credentialsLock) {
             this.authToken = null;
             this.credentialStore.remove(context, AUTHENTICATION_TOKEN);
+            this.credentialStore.remove(context, USERNAME);
+            this.credentialStore.remove(context, PASSWORD);
         }
 
     }
@@ -204,6 +261,50 @@ public class LS2Manager {
 
     public void checkTokenIsValid() {
 
+    }
+
+    public void generateParticipantAccount(LS2ParticipantAccountGeneratorCredentials generatorCredentials, final Completion completion) {
+
+//        if (this.hasCredentials()) {
+//            completion.onCompletion(new LS2ManagerHasCredentials());
+//            return;
+//        }
+
+        this.client.generateParticipantAccount(generatorCredentials, new LS2Client.GenerationCompletion() {
+            @Override
+            public void onCompletion(LS2Client.ParticipantAccountGenerationResponse response, Exception e) {
+
+                if (e != null) {
+                    completion.onCompletion(e);
+                    return;
+                }
+
+                if (response != null) {
+                    setCredentials(response.getUsername(), response.getPassword());
+                }
+
+                if (LS2Manager.this.delegate != null) {
+                    LS2Manager.this.delegate.onSignIn(LS2Manager.this);
+                }
+
+                completion.onCompletion(null);
+                return;
+
+            }
+        });
+
+    }
+
+    public void signInWithCredentials(final Completion completion) {
+
+        String username = this.getUsername();
+        String password = this.getPassword();
+
+        if (username == null || password == null) {
+            completion.onCompletion(new LS2ManagerDoesNotHaveCredentials());
+        }
+
+        this.signIn(username, password, completion);
     }
 
     //Sign In
@@ -225,7 +326,7 @@ public class LS2Manager {
                 }
 
                 if (response != null) {
-                    setCredentials(response.getAuthToken());
+                    setAuthToken(response.getAuthToken());
                 }
 
                 if (LS2Manager.this.delegate != null) {
