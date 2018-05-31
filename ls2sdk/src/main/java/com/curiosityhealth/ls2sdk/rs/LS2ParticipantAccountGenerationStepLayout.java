@@ -23,17 +23,12 @@ import org.researchstack.backbone.step.Step;
 import org.researchstack.backbone.ui.callbacks.StepCallbacks;
 import org.researchstack.backbone.ui.step.layout.StepLayout;
 
-//import org.researchsuite.rsuiteextensionscore.RSRedirectStep;
-import org.researchsuite.rsuiteextensionscore.RSRedirectStepDelegate;
-import org.researchsuite.rsuiteextensionscore.RSRedirectStepLayout;
-
 /**
  * Created by jameskizer on 3/29/18.
  */
 
 public class LS2ParticipantAccountGenerationStepLayout extends RelativeLayout implements StepLayout {
 
-//    private RSRedirectStep step;
     private LS2ParticipantAccountGenerationStep step;
     private StepResult<Boolean> result;
     private StepCallbacks callbacks;
@@ -79,7 +74,6 @@ public class LS2ParticipantAccountGenerationStepLayout extends RelativeLayout im
 
     public void initialize(Step step, StepResult result) {
         this.step = (LS2ParticipantAccountGenerationStep)step;
-//        this.stepResult = result == null?new StepResult(step):result;
         this.result = result == null ? new StepResult<>(step) : result;
         View layout = LayoutInflater.from(this.getContext()).inflate(R.layout.participant_account_generator_layout, this, true);
         this.mLogInButton = (AppCompatButton)this.findViewById(org.researchsuite.rsuiteextensionscore.R.id.log_in_button);
@@ -109,34 +103,10 @@ public class LS2ParticipantAccountGenerationStepLayout extends RelativeLayout im
         }
 
         this.setLS2Manager(LS2Manager.getInstance());
-
-//        this.mHandler = new Handler(new Handler.Callback() {
-//            public boolean handleMessage(Message message) {
-//                Throwable error = RSRedirectStepLayout.this.getDelegate().getError();
-//                if(RSRedirectStepLayout.this.getDelegate().isCompleted().booleanValue() && error == null) {
-//                    RSRedirectStepLayout.this.moveForward();
-//                } else {
-//                    StringBuilder builder = new StringBuilder("An error occurred");
-//                    if(error instanceof Exception) {
-//                        Exception e = (Exception)error;
-//                        builder.append(": ");
-//                        builder.append(e.getLocalizedMessage());
-//                    }
-//
-//                    Toast.makeText(RSRedirectStepLayout.this.getContext(), builder.toString(), 0).show();
-//                }
-//
-//                return true;
-//            }
-//        });
-//        this.getDelegate().setHandler(this.mHandler);
     }
 
-//    protected abstract RSRedirectStepDelegate getDelegate();
 
     private void logInTapped() {
-//        RSRedirectStepDelegate delegate = this.getDelegate();
-//        delegate.beginRedirect(this.context);
 
         final Activity activity = (Activity)this.context;
         final LS2Manager manager = this.getLS2Manager();
