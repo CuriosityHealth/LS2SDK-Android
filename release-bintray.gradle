@@ -14,9 +14,9 @@ ext {
     libraryDescription = POM_DESCRIPTION
 
     siteUrl = 'https://curiosityhealth.com'
-    gitUrl = 'https://github.com/jdkizer9/LS2SDK-Android.git'
+    gitUrl = 'https://github.com/curiosityhealth.com/LS2SDK-Android.git'
 
-    libraryVersion = POM_VERSION
+    libraryVersion = lib_version
 
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())

@@ -3,8 +3,10 @@ package com.curiosityhealth.ls2sdk.core.client;
 import android.util.Log;
 
 import com.curiosityhealth.ls2sdk.LS2ParticipantAccountGeneratorCredentials;
+import com.curiosityhealth.ls2sdk.common.LS2Datapoint;
 import com.curiosityhealth.ls2sdk.core.client.exception.*;
 import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
+import com.google.gson.JsonParseException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -297,6 +299,21 @@ public class LS2Client {
         return isValid;
     }
 
+    public boolean validateSample(LS2Datapoint sample) {
+        try {
+            String sampleJsonString = LS2Datapoint.Companion.getGson().toJson(sample);
+            Log.i(TAG, "validating json" + sampleJsonString);
+            JSONObject recodedJson = new JSONObject(sampleJsonString);
+            return true;
+        } catch (JSONException ex) {
+            return false;
+        } catch (NullPointerException e) {
+            return false;
+        } catch (JsonParseException e) {
+            return false;
+        }
+    }
+
     public boolean validateSampleJson(JSONObject sampleJson) {
         try {
             String sampleJsonString = sampleJson.toString();
@@ -308,6 +325,21 @@ public class LS2Client {
         } catch (NullPointerException e) {
             return false;
         }
+    }
+
+    public void postSample(LS2Datapoint datapoint, String authToken, final PostSampleCompletion completion) {
+
+        String jsonString = LS2Datapoint.Companion.getGson().toJson(datapoint);
+        RequestBody body = RequestBody.create(JSON, jsonString);
+        Request request = new Request.Builder()
+                .url(this.baseURL + "/dataPoints")
+                .header("Authorization", "Token " + authToken)
+                .header("Accept", "application/json")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(this.processJSONResponse(completion));
+
     }
 
     public void postSample(JSONObject sampleJson, String authToken, final PostSampleCompletion completion) {

@@ -6,6 +6,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.curiosityhealth.ls2sdk.LS2ParticipantAccountGeneratorCredentials;
+import com.curiosityhealth.ls2sdk.common.LS2ConcreteDatapoint;
+import com.curiosityhealth.ls2sdk.common.LS2Datapoint;
+import com.curiosityhealth.ls2sdk.common.LS2DatapointQueue;
 import com.curiosityhealth.ls2sdk.core.client.LS2Client;
 import com.curiosityhealth.ls2sdk.core.client.exception.LS2ClientDataPointConflict;
 import com.curiosityhealth.ls2sdk.core.client.exception.LS2ClientInvalidDataPoint;
@@ -17,6 +20,8 @@ import com.curiosityhealth.ls2sdk.omh.OMHDataPoint;
 import com.squareup.tape.FileObjectQueue;
 import com.squareup.tape.ObjectQueue;
 
+import org.researchsuite.researchsuiteextensions.encryption.RSClearEncryptor;
+import org.researchsuite.researchsuiteextensions.encryption.RSEncryptor;
 import org.researchsuite.rsuiteextensionscore.RSCredentialStore;
 
 import java.io.File;
@@ -31,21 +36,31 @@ import java.io.Writer;
 
 public class LS2Manager {
 
-    private static class DatapointConverter implements FileObjectQueue.Converter<String> {
-        @Override
-        public String from(byte[] bytes) throws IOException {
-            return new String(bytes);
-        }
+//    private static class DatapointConverter implements FileObjectQueue.Converter<String> {
+//        @Override
+//        public String from(byte[] bytes) throws IOException {
+//            return new String(bytes);
+//        }
+//
+//        @Override
+//        public void toStream(String o, OutputStream bytes) throws IOException {
+//            Writer writer = new OutputStreamWriter(bytes);
+//            writer.append(o);
+//            writer.close();
+//        }
+//    }
+//
 
-        @Override
-        public void toStream(String o, OutputStream bytes) throws IOException {
-            Writer writer = new OutputStreamWriter(bytes);
-            writer.append(o);
-            writer.close();
-        }
+    //for backwards compatibility
+    public static LS2Datapoint convertDatapoint(OMHDataPoint datapoint) {
+        //serialize OMHDatapoint
+        String jsonString = datapoint.toJson().toString();
+        //deserialize to LS2Datapoint
+        LS2Datapoint ls2Datapoint = LS2Datapoint.Companion.getGson().fromJson(jsonString, LS2ConcreteDatapoint.class);
+        return ls2Datapoint;
     }
 
-    private static class QueueListener implements ObjectQueue.Listener<String> {
+    private static class QueueListener implements ObjectQueue.Listener<LS2Datapoint> {
 
         public QueueListener(LS2Manager manager) {
             this.manager = manager;
@@ -54,12 +69,12 @@ public class LS2Manager {
         private LS2Manager manager;
         //Queue Listener Methods
         @Override
-        public void onAdd(ObjectQueue<String> queue, String entry) {
+        public void onAdd(ObjectQueue<LS2Datapoint> queue, LS2Datapoint entry) {
             manager.upload();
         }
 
         @Override
-        public void onRemove(ObjectQueue<String> queue) {
+        public void onRemove(ObjectQueue<LS2Datapoint> queue) {
 
         }
     }
@@ -93,8 +108,10 @@ public class LS2Manager {
     private LS2Client client;
 
     private Object uploadLock;
-    FileObjectQueue<String> datapointQueue;
-    ObjectQueue.Listener<String> queueListener;
+    LS2DatapointQueue datapointQueue;
+//    LS2DatapointQueue.QueueListener queueListener;
+//    FileObjectQueue<String> datapointQueue;
+    ObjectQueue.Listener<LS2Datapoint> queueListener;
     boolean isUploading = false;
 
     private Delegate delegate;
@@ -176,10 +193,13 @@ public class LS2Manager {
         //load queue from disk
         this.uploadLock = new Object();
 
-        File queueFile = new File(context.getFilesDir() + queueStorageDirectory);
-        DatapointConverter converter = new DatapointConverter();
+//        File queueFile = new File(context.getFilesDir() + queueStorageDirectory);
+//        DatapointConverter converter = new DatapointConverter();
         try {
-            this.datapointQueue = new FileObjectQueue<>(queueFile, converter);
+//            this.datapointQueue = new FileObjectQueue<>(queueFile, converter);
+            String filePath = context.getFilesDir() + queueStorageDirectory;
+            RSEncryptor encryptor = new RSClearEncryptor();
+            this.datapointQueue = LS2DatapointQueue.Companion.createQueue(filePath, encryptor);
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -380,11 +400,26 @@ public class LS2Manager {
             return;
         }
 
-        //add datapoint
-        //this should notify the listener, which should start the upload
-        String datapointString = datapoint.toJson().toString();
-        this.datapointQueue.add(datapointString);
+        //convert to LS2Datapoint
+        LS2Datapoint ls2Datapoint = LS2Manager.convertDatapoint(datapoint);
+        this.addDatapoint(ls2Datapoint, completion);
+    }
 
+    public void addDatapoint(final LS2Datapoint datapoint, final Completion completion) {
+        if (!this.isSignedIn()) {
+            completion.onCompletion(new LS2ManagerNotSignedIn());
+            return;
+        }
+
+        if (!this.client.validateSample(datapoint)) {
+            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.getHeader().getId());
+//            Log.w(TAG, datapoint);
+            completion.onCompletion(new LS2ClientInvalidDataPoint());
+            return;
+        }
+
+        this.datapointQueue.add(datapoint);
+        completion.onCompletion(null);
     }
 
 
@@ -405,9 +440,11 @@ public class LS2Manager {
 
             this.isUploading = true;
 
-            String datapointString = this.datapointQueue.peek();
+//            String datapointString = this.datapointQueue.peek();
 
-            assert(datapointString != null && !datapointString.isEmpty());
+            LS2Datapoint datapoint = this.datapointQueue.peek();
+
+//            assert(datapointString != null && !datapointString.isEmpty());
 
             String localAuthToken;
             synchronized (this.credentialsLock) {
@@ -416,7 +453,7 @@ public class LS2Manager {
 
             assert(localAuthToken != null && !localAuthToken.isEmpty());
 
-            this.client.postSample(datapointString, localAuthToken, new LS2Client.PostSampleCompletion() {
+            this.client.postSample(datapoint, localAuthToken, new LS2Client.PostSampleCompletion() {
                 @Override
                 public void onCompletion(boolean success, Exception e) {
 
