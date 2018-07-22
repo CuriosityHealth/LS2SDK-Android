@@ -236,8 +236,12 @@ public data class LS2DatapointHeader(val id: UUID, val schemaID: LS2Schema, val 
 
 public interface LS2Datapoint {
 
-    val header: LS2DatapointHeader
-    val body: Map<String, Any>
+    public val header: LS2DatapointHeader
+    public val body: Map<String, Any>
+
+    public fun toJson(gson: Gson = LS2Datapoint.gson): String {
+        return gson.toJson(this)
+    }
 
     companion object {
 
@@ -270,6 +274,17 @@ public interface LS2Datapoint {
             }
 
         }
+
+        fun createDatapoint(header: LS2DatapointHeader, body: Map<String, Any>, builder: LS2DatapointBuilder = LS2ConcreteDatapoint): LS2Datapoint {
+            return builder.createDatapoint(header, body)
+        }
+
+        inline fun <reified T: LS2Datapoint> foo() = T::class.java
+
+        inline fun <reified T: LS2Datapoint> fromJson(jsonString: String, gson: Gson = LS2Datapoint.gson): LS2Datapoint {
+            return gson.fromJson<T>(jsonString, T::class.java )
+        }
+
     }
 }
 
