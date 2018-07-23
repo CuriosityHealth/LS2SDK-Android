@@ -37,6 +37,10 @@ allprojects {
     repositories {
         google()
         jcenter()
+        //for tape2 snapshot
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
         maven { url "https://dl.bintray.com/org-researchsuite/maven" }
         maven { url "https://jitpack.io" } // for MPAndroidChard, not on jcenter yet
         mavenLocal()

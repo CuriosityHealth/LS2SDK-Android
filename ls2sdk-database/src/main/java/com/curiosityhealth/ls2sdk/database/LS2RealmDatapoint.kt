@@ -10,11 +10,18 @@ import java.util.*
 
 open public class LS2RealmDatapoint: RealmObject(), LS2Datapoint {
 
-//    constructor(h: LS2DatapointHeader, b: Map<String, Any>) {
-//
-//    }
-
     companion object: LS2DatapointBuilder, LS2DatapointConvertible<LS2RealmDatapoint> {
+
+        val gson: Gson = {
+            val gsonBuilder = GsonBuilder()
+            gsonBuilder.registerTypeAdapter(LS2Schema::class.java, LS2Schema.JSONAdapter())
+            gsonBuilder.registerTypeAdapter(LS2AcquisitionProvenance::class.java, LS2AcquisitionProvenance.JSONAdapter())
+            gsonBuilder.registerTypeAdapter(LS2DatapointHeader::class.java, LS2DatapointHeader.JSONAdapter())
+            gsonBuilder.registerTypeAdapter(LS2ConcreteDatapoint::class.java, LS2ConcreteDatapoint.JSONAdapter())
+            gsonBuilder.registerTypeAdapter(LS2RealmDatapoint::class.java, LS2RealmDatapoint.JSONAdapter())
+            gsonBuilder.create()
+        }()
+
         override fun createDatapoint(header: LS2DatapointHeader, body: Map<String, Any>): LS2RealmDatapoint {
             val datapoint = LS2RealmDatapoint()
             datapoint.configureHeader(header)

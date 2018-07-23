@@ -344,7 +344,6 @@ public data class LS2ConcreteDatapoint(
             return datapoint ?: { throw JsonParseException("Cannot decode JSONAdapter") }()
 
         }
-
     }
 
 }
