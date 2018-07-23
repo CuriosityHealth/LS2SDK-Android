@@ -37,7 +37,27 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    implementation project(':common')
-    implementation project(':database')
+    implementation project(':ls2sdk-common')
+    implementation project(':ls2sdk-database')
 
+    implementation 'org.researchsuite:researchsuiteextensions-encryption:0.1.0'
+    implementation 'org.researchsuite:researchsuiteextensions-common:0.1.0'
+
+}
+
+//https://proandroiddev.com/android-gradle-and-the-curious-case-of-invisible-dependency-7f1bcc8bb79e
+//https://stackoverflow.com/questions/42374151/all-com-android-support-libraries-must-use-the-exact-same-version-specification
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'com.android.support'
+                && !details.requested.name.contains('multidex')) {
+            details.useVersion "$android_support_version"
+        }
+    }
+}
+
+android {
+    kotlinOptions {
+        languageVersion = "1.2"
+    }
 }

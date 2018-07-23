@@ -1,1 +1,1 @@
-include ':ls2sdk', ':common', ':database', ':app'
+include ':ls2sdk-core', ':ls2sdk-common', ':ls2sdk-database', ':app'

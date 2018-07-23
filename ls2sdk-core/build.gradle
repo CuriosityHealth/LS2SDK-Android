@@ -63,8 +63,19 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.7.0'
     implementation 'com.squareup:tape:1.2.3'
 
-    implementation project(':common')
+    implementation project(':ls2sdk-common')
     implementation 'org.researchsuite:researchsuiteextensions-encryption:0.1.0'
+}
+
+//https://proandroiddev.com/android-gradle-and-the-curious-case-of-invisible-dependency-7f1bcc8bb79e
+//https://stackoverflow.com/questions/42374151/all-com-android-support-libraries-must-use-the-exact-same-version-specification
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'com.android.support'
+                && !details.requested.name.contains('multidex')) {
+            details.useVersion "$android_support_version"
+        }
+    }
 }
 
 android {

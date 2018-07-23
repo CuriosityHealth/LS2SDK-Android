@@ -115,7 +115,7 @@ open public class LS2RealmDatapoint: RealmObject(), LS2Datapoint {
     }
 
 
-    public class JSONAdaptor : JsonConvertible<LS2RealmDatapoint> {
+    public class JSONAdapter : JsonConvertible<LS2RealmDatapoint> {
 
         override fun serialize(src: LS2RealmDatapoint, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             val jsonObject = JsonObject()
@@ -138,7 +138,7 @@ open public class LS2RealmDatapoint: RealmObject(), LS2Datapoint {
 
             }
 
-            return datapoint ?: { throw JsonParseException("Cannot decode JSONAdaptor") }()
+            return datapoint ?: { throw JsonParseException("Cannot decode JSONAdapter") }()
 
         }
 

@@ -3,12 +3,10 @@ package com.curiosityhealth.ls2sdk.common
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.support.annotation.RequiresApi
 import com.google.gson.*
 import java.lang.reflect.Type
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.ZoneId
 import java.util.*
 
 public interface JsonConvertible<T>:  JsonSerializer<T>,  JsonDeserializer<T> {
@@ -70,7 +68,7 @@ public data class LS2Schema(val name: String, val version: LS2SchemaVersion, val
         }
     }
 
-    public class JSONAdaptor : JsonConvertible<LS2Schema> {
+    public class JSONAdapter : JsonConvertible<LS2Schema> {
 
         override public fun serialize(src: LS2Schema, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             val jsonObject = JsonObject()
@@ -127,7 +125,7 @@ public sealed class LS2AcquisitionProvenanceModality {
 
 public data class LS2AcquisitionProvenance(val sourceName: String, val sourceCreationDateTime: Date, val modality: LS2AcquisitionProvenanceModality) {
 
-    public class JSONAdaptor : JsonConvertible<LS2AcquisitionProvenance> {
+    public class JSONAdapter : JsonConvertible<LS2AcquisitionProvenance> {
         override fun serialize(src: LS2AcquisitionProvenance, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             val jsonObject = JsonObject()
             jsonObject.addProperty("source_name", src.sourceName)
@@ -201,7 +199,7 @@ public data class LS2AcquisitionProvenance(val sourceName: String, val sourceCre
 
 public data class LS2DatapointHeader(val id: UUID, val schemaID: LS2Schema, val acquisitionProvenance: LS2AcquisitionProvenance, val metadata: Map<String, Any>? = null) {
 
-    public class JSONAdaptor : JsonConvertible<LS2DatapointHeader> {
+    public class JSONAdapter : JsonConvertible<LS2DatapointHeader> {
         override fun serialize(src: LS2DatapointHeader, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             val jsonObject = JsonObject()
             jsonObject.addProperty("id", src.id.toString())
@@ -247,10 +245,10 @@ public interface LS2Datapoint {
 
         val gson: Gson = {
             val gsonBuilder = GsonBuilder()
-            gsonBuilder.registerTypeAdapter(LS2Schema::class.java, LS2Schema.JSONAdaptor())
-            gsonBuilder.registerTypeAdapter(LS2AcquisitionProvenance::class.java, LS2AcquisitionProvenance.JSONAdaptor())
-            gsonBuilder.registerTypeAdapter(LS2DatapointHeader::class.java, LS2DatapointHeader.JSONAdaptor())
-            gsonBuilder.registerTypeAdapter(LS2ConcreteDatapoint::class.java, LS2ConcreteDatapoint.JSONAdaptor())
+            gsonBuilder.registerTypeAdapter(LS2Schema::class.java, LS2Schema.JSONAdapter())
+            gsonBuilder.registerTypeAdapter(LS2AcquisitionProvenance::class.java, LS2AcquisitionProvenance.JSONAdapter())
+            gsonBuilder.registerTypeAdapter(LS2DatapointHeader::class.java, LS2DatapointHeader.JSONAdapter())
+            gsonBuilder.registerTypeAdapter(LS2ConcreteDatapoint::class.java, LS2ConcreteDatapoint.JSONAdapter())
             gsonBuilder.create()
         }()
 
@@ -278,8 +276,6 @@ public interface LS2Datapoint {
         fun createDatapoint(header: LS2DatapointHeader, body: Map<String, Any>, builder: LS2DatapointBuilder = LS2ConcreteDatapoint): LS2Datapoint {
             return builder.createDatapoint(header, body)
         }
-
-        inline fun <reified T: LS2Datapoint> foo() = T::class.java
 
         inline fun <reified T: LS2Datapoint> fromJson(jsonString: String, gson: Gson = LS2Datapoint.gson): LS2Datapoint {
             return gson.fromJson<T>(jsonString, T::class.java )
@@ -323,7 +319,7 @@ public data class LS2ConcreteDatapoint(
 
     }
 
-    public class JSONAdaptor : JsonConvertible<LS2ConcreteDatapoint> {
+    public class JSONAdapter : JsonConvertible<LS2ConcreteDatapoint> {
         override fun serialize(src: LS2ConcreteDatapoint, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             val jsonObject = JsonObject()
             jsonObject.add("header", context.serialize(src.header))
@@ -345,7 +341,7 @@ public data class LS2ConcreteDatapoint(
 
             }
 
-            return datapoint ?: { throw JsonParseException("Cannot decode JSONAdaptor") }()
+            return datapoint ?: { throw JsonParseException("Cannot decode JSONAdapter") }()
 
         }
 
