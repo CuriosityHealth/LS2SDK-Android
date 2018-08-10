@@ -40,8 +40,8 @@ dependencies {
     implementation project(':ls2sdk-common')
     implementation project(':ls2sdk-database')
 
-    implementation 'org.researchsuite:researchsuiteextensions-encryption:0.1.0'
-    implementation 'org.researchsuite:researchsuiteextensions-common:0.1.0'
+    implementation "org.researchsuite:researchsuiteextensions-common:$researchsuiteextensions_version"
+    implementation "org.researchsuite:researchsuiteextensions-encryption:$researchsuiteextensions_version"
 
 }
 

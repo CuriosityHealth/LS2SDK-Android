@@ -5,10 +5,17 @@ import com.curiosityhealth.ls2sdk.common.LS2Datapoint.Companion.gson
 import com.google.gson.*
 import io.realm.RealmObject
 import io.realm.annotations.Ignore
+import org.researchsuite.researchsuiteextensions.common.JsonConvertible
+import org.researchsuite.researchsuiteextensions.common.asJsonObjectOrNull
+import org.researchsuite.researchsuiteextensions.common.getObjectOrNull
 import java.lang.reflect.Type
 import java.util.*
 
-open public class LS2RealmDatapoint: RealmObject(), LS2Datapoint {
+open public class LS2RealmDatapoint: RealmObject(), LS2Datapoint, LS2DatapointEncodable {
+
+    override fun toDatapoint(builder: LS2DatapointBuilder): LS2Datapoint {
+        return LS2RealmDatapoint.toDatapoint(this, builder)
+    }
 
     companion object: LS2DatapointBuilder, LS2DatapointConvertible<LS2RealmDatapoint> {
 
@@ -29,8 +36,8 @@ open public class LS2RealmDatapoint: RealmObject(), LS2Datapoint {
             return datapoint
         }
 
-        override fun toDatapoint(src: LS2RealmDatapoint): LS2Datapoint {
-            return src
+        override fun toDatapoint(src: LS2RealmDatapoint, builder: LS2DatapointBuilder): LS2Datapoint {
+            return builder.createDatapoint(src.header, src.body)
         }
 
         override fun fromDatapoint(datapoint: LS2Datapoint): LS2RealmDatapoint? {

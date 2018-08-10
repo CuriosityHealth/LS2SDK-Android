@@ -45,17 +45,15 @@ dependencies {
         exclude group: "com.android.support"
     }
 
-    implementation ('org.researchsuite:rstb:0.2.0') {
-        exclude group: "com.android.support"
-    }
+    implementation "org.researchsuite:rstb:$rstb_version"
 
     implementation ('org.researchsuite:rsrp:0.3.0-SNAPSHOT') {
         exclude group: "com.android.support"
     }
 
-    implementation ('org.researchsuite:rsuiteextensionscore:0.2.0')
+    implementation ("org.researchsuite:rsuiteextensionscore:$rsextensions_version")
 
-    implementation ('org.researchsuite:rsuiteextensionsrstb:0.2.0') {
+    implementation ("org.researchsuite:rsuiteextensionsrstb:$rsextensions_version") {
         exclude group: "com.android.support"
     }
 
@@ -64,7 +62,9 @@ dependencies {
     implementation 'com.squareup:tape:1.2.3'
 
     implementation project(':ls2sdk-common')
-    implementation 'org.researchsuite:researchsuiteextensions-encryption:0.1.0'
+
+    implementation "org.researchsuite:researchsuiteextensions-common:$researchsuiteextensions_version"
+    implementation "org.researchsuite:researchsuiteextensions-encryption:$researchsuiteextensions_version"
 }
 
 //https://proandroiddev.com/android-gradle-and-the-curious-case-of-invisible-dependency-7f1bcc8bb79e

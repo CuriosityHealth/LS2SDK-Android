@@ -64,29 +64,29 @@ class MainActivity : AppCompatActivity() {
         val datapoint = LS2Datapoint.createDatapoint(header, body)
         Log.d(TAG, datapoint.toString())
 
-//        val jsonString = datapoint.toJson(gson)
-//        Log.d(TAG, jsonString)
-//
-//        val deserializedDatapoint = LS2Datapoint.fromJson<LS2ConcreteDatapoint>(jsonString, gson)
-//
-//        Log.d(TAG, deserializedDatapoint.toString())
-//
-//        val realmDatapoint = LS2RealmDatapoint.fromDatapoint(deserializedDatapoint)!!
-//        Log.d(TAG, realmDatapoint.toString())
-//
-//        val realmJsonString = realmDatapoint.toJson(gson)
-//        Log.d(TAG, realmJsonString)
-//
-//        val deserializedRealmDatapoint = LS2Datapoint.fromJson<LS2RealmDatapoint>(jsonString, gson)
-//
-//        Log.d(TAG, deserializedRealmDatapoint.toString())
+        val jsonString = datapoint.toJson(gson)
+        Log.d(TAG, jsonString)
+
+        val deserializedDatapoint = LS2Datapoint.fromJson<LS2ConcreteDatapoint>(jsonString, gson)
+
+        Log.d(TAG, deserializedDatapoint.toString())
+
+        val realmDatapoint = LS2RealmDatapoint.fromDatapoint(deserializedDatapoint)!!
+        Log.d(TAG, realmDatapoint.toString())
+
+        val realmJsonString = realmDatapoint.toJson(gson)
+        Log.d(TAG, realmJsonString)
+
+        val deserializedRealmDatapoint = LS2Datapoint.fromJson<LS2RealmDatapoint>(jsonString, gson)
+
+        Log.d(TAG, deserializedRealmDatapoint.toString())
 
 
-//        val kvs = RSKeyValueStore(
-//                filePath = this.filesDir.absolutePath + "/kvs/map.ser"
-//        )
+        val kvs = RSKeyValueStore(
+                filePath = this.filesDir.absolutePath + "/kvs/map.ser"
+        )
 
-//        kvs.clear()
+        kvs.clear()
 
         val encryptionManager = RSEncryptionManager(
                 "ls2sdk.app.masterKey",
@@ -101,38 +101,38 @@ class MainActivity : AppCompatActivity() {
                 objectConverter = RSEncryptedJavaObjectConverter(encryptor)
         )
 
-//        ekvs.clear()
+        ekvs.clear()
 
-//        val key = "ls2DatabaseKey"
-//
-//        val databaseKey: ByteArray = {
-//            if (kvs.has(key) && ekvs.has(key)) {
-//                assert(kvs.get(key) == ekvs.get(key))
-//                ekvs.get(key)!! as ByteArray
-//            }
-//            else {
-//                val generatedKey = RSEncryptionManager.generateKeyMaterial(64)
-//                kvs.set(key, generatedKey)
-//                ekvs.set(key, generatedKey)
-//                generatedKey
-//            }
-//        }()
-//
-//        Log.d(TAG, MainActivity.bytesToHex(databaseKey))
-//
-//        assert(databaseKey.size == 64)
-//
-//        Realm.init(this)
-//
-//        val realmDir = File(this.filesDir, "realmDir")
-//
-//        val config = RealmConfiguration.Builder()
-//                .directory(realmDir)
-//                .name("ls2.realm")
-//                .encryptionKey(databaseKey)
-//                .build()
-//
-//        Realm.setDefaultConfiguration(config)
+        val key = "ls2DatabaseKey"
+
+        val databaseKey: ByteArray = {
+            if (kvs.has(key) && ekvs.has(key)) {
+                assert(kvs.get(key) == ekvs.get(key))
+                ekvs.get(key)!! as ByteArray
+            }
+            else {
+                val generatedKey = RSEncryptionManager.generateKeyMaterial(64)
+                kvs.set(key, generatedKey)
+                ekvs.set(key, generatedKey)
+                generatedKey
+            }
+        }()
+
+        Log.d(TAG, MainActivity.bytesToHex(databaseKey))
+
+        assert(databaseKey.size == 64)
+
+        Realm.init(this)
+
+        val realmDir = File(this.filesDir, "realmDir")
+
+        val config = RealmConfiguration.Builder()
+                .directory(realmDir)
+                .name("ls2.realm")
+                .encryptionKey(databaseKey)
+                .build()
+
+        Realm.setDefaultConfiguration(config)
 
 //        databaseStorageDirectory: String,
 //        databaseFileName: String,

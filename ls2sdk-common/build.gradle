@@ -38,7 +38,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.squareup:tape:1.2.3'
 
-    implementation 'org.researchsuite:researchsuiteextensions-encryption:0.1.0'
+    implementation "org.researchsuite:researchsuiteextensions-common:$researchsuiteextensions_version"
+    implementation "org.researchsuite:researchsuiteextensions-encryption:$researchsuiteextensions_version"
 }
 
 android {

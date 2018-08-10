@@ -38,9 +38,12 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
 
     implementation project(':ls2sdk-common')
-//    implementation 'org.researchsuite:researchsuiteextensions-common:0.1.0'
-    implementation 'org.researchsuite:researchsuiteextensions-encryption:0.1.0'
+
+    implementation "org.researchsuite:researchsuiteextensions-common:$researchsuiteextensions_version"
+    implementation "org.researchsuite:researchsuiteextensions-encryption:$researchsuiteextensions_version"
 
 
     implementation 'com.squareup.tape2:tape:2.0.0-SNAPSHOT'
 }
+
+apply from: rootProject.file('release-bintray.gradle')

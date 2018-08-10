@@ -9,7 +9,11 @@ buildscript {
         android_support_version = '27.1.1'
         android_min_sdk_version = 21
         android_sdk_version = 27
+        researchsuiteextensions_version = '0.1.0-SNAPSHOT'
         lib_version = '0.4.0-SNAPSHOT'
+        rstb_version = '0.3.0-SNAPSHOT'
+
+        rsextensions_version = '0.3.0-SNAPSHOT'
 
     }
 

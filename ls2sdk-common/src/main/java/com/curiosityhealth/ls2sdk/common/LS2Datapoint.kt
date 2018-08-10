@@ -4,43 +4,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import com.google.gson.*
+import org.researchsuite.researchsuiteextensions.common.asJsonObjectOrNull
+import org.researchsuite.researchsuiteextensions.common.getObjectOrNull
+import org.researchsuite.researchsuiteextensions.common.getStringOrNull
+import org.researchsuite.researchsuiteextensions.common.JsonConvertible
 import java.lang.reflect.Type
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-
-public interface JsonConvertible<T>:  JsonSerializer<T>,  JsonDeserializer<T> {
-
-}
-
-public val JsonElement.asJsonObjectOrNull: JsonObject?
-    get() = if (this.isJsonObject) this.asJsonObject else null
-
-public val JsonElement.asJsonPrimitiveOrNull: JsonPrimitive?
-    get() = if (this.isJsonPrimitive) this.asJsonPrimitive else null
-
-public val JsonPrimitive.asStringOrNull: String?
-    get() = if (this.isString) this.asString else null
-
-public fun JsonObject.getStringOrNull(memberName: String): String? {
-    return if (this.has(memberName)) this.get(memberName).asJsonPrimitiveOrNull?.asStringOrNull else null
-}
-
-public fun JsonObject.getJsonObjectOrNull(memberName: String): JsonObject? {
-    return if (this.has(memberName)) this.get(memberName).asJsonObjectOrNull else null
-}
-
-@Throws(JsonParseException::class)
-public fun <T> JsonObject.getObjectOrNull(memberName: String, context: JsonDeserializationContext, typeOfT: Type): T? {
-    val jsonObject = this.getJsonObjectOrNull(memberName)
-    return jsonObject?.let {
-        try {
-            context.deserialize<T>(it, typeOfT)
-        } catch (e: JsonParseException) {
-            null
-        }
-    }
-}
 
 
 
@@ -64,6 +35,16 @@ public data class LS2Schema(val name: String, val version: LS2SchemaVersion, val
     companion object {
         fun init(name: String, version: LS2SchemaVersion?, namespace: String): LS2Schema? {
             if (version != null) return LS2Schema(name, version, namespace)
+            else return null
+        }
+
+        fun fromMap(map: Map<String, Any>): LS2Schema? {
+            val name = map.get("name") as? String
+            val namespace = map.get("namespace") as? String
+            val version = (map.get("version") as? String)?.let { LS2SchemaVersion.fromString(it) }
+            if (name != null && namespace != null && version != null) {
+                return LS2Schema(name, version, namespace)
+            }
             else return null
         }
     }
@@ -288,8 +269,12 @@ public interface LS2DatapointBuilder {
     fun createDatapoint(header: LS2DatapointHeader, body: Map<String, Any>): LS2Datapoint
 }
 
+public interface LS2DatapointEncodable {
+    fun toDatapoint(builder: LS2DatapointBuilder): LS2Datapoint
+}
+
 public interface LS2DatapointEncoder<T> {
-    fun toDatapoint(src: T): LS2Datapoint
+    fun toDatapoint(src: T, builder: LS2DatapointBuilder): LS2Datapoint
 }
 
 public interface LS2DatapointDecoder<T> {
@@ -301,7 +286,11 @@ public interface LS2DatapointConvertible<T>: LS2DatapointEncoder<T>, LS2Datapoin
 public data class LS2ConcreteDatapoint(
         override val header: LS2DatapointHeader,
         override val body: Map<String, Any>
-): LS2Datapoint {
+): LS2Datapoint, LS2DatapointEncodable {
+
+    override fun toDatapoint(builder: LS2DatapointBuilder): LS2Datapoint {
+        return LS2ConcreteDatapoint.toDatapoint(this, builder)
+    }
 
     companion object: LS2DatapointBuilder, LS2DatapointConvertible<LS2ConcreteDatapoint> {
 
@@ -309,8 +298,8 @@ public data class LS2ConcreteDatapoint(
             return LS2ConcreteDatapoint(header, body)
         }
 
-        override fun toDatapoint(src: LS2ConcreteDatapoint): LS2Datapoint {
-            return src
+        override fun toDatapoint(src: LS2ConcreteDatapoint, builder: LS2DatapointBuilder): LS2Datapoint {
+            return builder.createDatapoint(src.header, src.body)
         }
 
         override fun fromDatapoint(datapoint: LS2Datapoint): LS2ConcreteDatapoint? {
