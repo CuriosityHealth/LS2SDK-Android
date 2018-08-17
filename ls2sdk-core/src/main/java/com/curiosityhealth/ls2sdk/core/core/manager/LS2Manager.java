@@ -153,7 +153,7 @@ public class LS2Manager {
     }
 
     @Nullable
-    private String getUsername() {
+    public String getUsername() {
         //if local authToken is null, try to load
         byte[] usernameData = this.credentialStore.get(context, USERNAME);
         if (usernameData != null) {
