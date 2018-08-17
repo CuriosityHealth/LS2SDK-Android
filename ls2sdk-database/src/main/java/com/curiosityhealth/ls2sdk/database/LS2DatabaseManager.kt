@@ -2,9 +2,7 @@ package com.curiosityhealth.ls2sdk.database
 
 import android.content.Context
 import android.util.Log
-import com.curiosityhealth.ls2sdk.common.LS2ConcreteDatapoint
 import com.curiosityhealth.ls2sdk.common.LS2Datapoint
-import com.curiosityhealth.ls2sdk.common.LS2DatapointQueue
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
 import com.squareup.tape2.ObjectQueue
@@ -15,12 +13,10 @@ import com.squareup.tape2.QueueFile
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import org.researchsuite.researchsuiteextensions.common.RSKeyValueStore
-import org.researchsuite.researchsuiteextensions.encryption.RSClearEncryptor
 import org.researchsuite.researchsuiteextensions.encryption.RSEncryptionManager
 import org.researchsuite.researchsuiteextensions.encryption.RSEncryptor
 import java.io.File
 import java.io.OutputStream
-import java.io.OutputStreamWriter
 import java.security.GeneralSecurityException
 import java.util.*
 
@@ -34,33 +30,6 @@ class LS2DatabaseManager(
         queueEncryptor: RSEncryptor,
         val credentialStore: RSKeyValueStore
 ) {
-
-    private class LS2DatapointConverter(val encryptor: RSEncryptor, val gson: Gson = LS2RealmDatapoint.gson): ObjectQueue.Converter<LS2Datapoint> {
-
-        @Throws(GeneralSecurityException::class, JsonParseException::class)
-        override fun from(bytes: ByteArray): LS2RealmDatapoint {
-
-            //decyrpt bytes
-            val clearBytes = encryptor.decrypt(bytes, null)
-
-            //convert bytes into JSON
-            val jsonString = String(clearBytes)
-            val datapoint = gson.fromJson<LS2RealmDatapoint>(jsonString, LS2RealmDatapoint::class.java)
-            return datapoint
-        }
-
-        @Throws(GeneralSecurityException::class)
-        override fun toStream(o: LS2Datapoint, bytes: OutputStream) {
-
-            //convert datapoint to JSON string
-            val jsonString = gson.toJson(o)
-
-            //encrypt json string
-            val cipherBytes = encryptor.encrypt(jsonString.toByteArray(), null)
-            bytes.write(cipherBytes)
-        }
-
-    }
 
     companion object {
         val DATABASE_ENCRYPTION_KEY = "ls2_database_key"
@@ -91,7 +60,7 @@ class LS2DatabaseManager(
         directory.mkdirs()
         val queueFile = QueueFile.Builder(File(directory, "ls2db.queue")).build()
 
-        val datapointConverter = LS2DatapointConverter(queueEncryptor)
+        val datapointConverter = LS2RealmDatapointConverter(queueEncryptor, LS2RealmDatapoint.gson)
         val datapointQueue = ObjectQueue.create(queueFile, datapointConverter)
         datapointQueue
     }()
