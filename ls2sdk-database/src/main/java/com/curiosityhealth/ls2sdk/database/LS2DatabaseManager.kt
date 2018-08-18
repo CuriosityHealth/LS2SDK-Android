@@ -35,8 +35,8 @@ class LS2DatabaseManager(
         val DATABASE_ENCRYPTION_KEY = "ls2_database_key"
         val DATABASE_FILE_UUID = "ls2_file_uuid"
         val TAG = LS2DatabaseManager::class.java.simpleName
-        val realm: Realm
-            get() = Realm.getDefaultInstance()
+//        val realm: Realm
+//            get() = Realm.getDefaultInstance()
 
         private val hexArray = "0123456789ABCDEF".toCharArray()
         fun bytesToHex(bytes: ByteArray): String {
@@ -109,7 +109,8 @@ class LS2DatabaseManager(
 
 
     init {
-//        this.realmFilePath = this.realmConfig.path
+//        this.realmFileP
+// ath = this.realmConfig.path
         Realm.setDefaultConfiguration(this.realmConfig)
         this.trySync()
     }
@@ -128,6 +129,8 @@ class LS2DatabaseManager(
             it.copyToRealm(datapoints)
         }
 
+        realm.close()
+
         Log.d(TAG, this.datapointQueue.toString())
         this.datapointQueue.remove(datapoints.size)
         Log.d(TAG, this.datapointQueue.toString())
@@ -138,17 +141,22 @@ class LS2DatabaseManager(
 
         this.datapointQueue.clear()
 
-//        val realm = Realm.deleteRealm(this.realmConfig)
-
         val realm = Realm.getDefaultInstance()
 
-        realm.deleteAll()
+        realm.executeTransaction {
+            it.deleteAll()
+        }
+
         realm.close()
 
         //now, delete the file
+        val realmDir = this.realmConfig.realmDirectory
         Realm.deleteRealm(this.realmConfig)
+        realmDir.deleteRecursively()
 
         //also need to delete file uuid and key
+        this.credentialStore.remove(LS2DatabaseManager.DATABASE_ENCRYPTION_KEY)
+        this.credentialStore.remove(LS2DatabaseManager.DATABASE_FILE_UUID)
 
     }
 
