@@ -52,6 +52,11 @@ public class LS2Manager {
         void onSignOut(LS2Manager manager);
     }
 
+    public interface Provider {
+        @Nullable
+        LS2Manager getManager();
+    }
+
     final static String TAG = LS2Manager.class.getSimpleName();
 
     private static String AUTHENTICATION_TOKEN = "AuthenticationToken";
@@ -83,21 +88,27 @@ public class LS2Manager {
         this.delegate = delegate;
     }
 
+    private static LS2Manager.Provider sProvider;
+
+    @Nullable
+    public static Provider getProvider() {
+        return sProvider;
+    }
+
+    public static void setProvider(Provider sProvider) {
+        LS2Manager.sProvider = sProvider;
+    }
+
     @Nullable
     public static LS2Manager getInstance() {
-        synchronized (managerLock) {
-            return manager;
+        Provider provider = getProvider();
+        if (provider != null) {
+            return provider.getManager();
+        }
+        else {
+            return null;
         }
     }
-
-    public static void config(Context context, String baseURL, RSCredentialStore store, String queueStorageDirectory, RSEncryptor queueEncryptor) {
-        synchronized (managerLock) {
-            if (manager == null) {
-                manager = new LS2Manager(context, baseURL, store, queueStorageDirectory, queueEncryptor);
-            }
-        }
-    }
-
 
     @Nullable
     private String getAuthToken() {
@@ -166,7 +177,7 @@ public class LS2Manager {
         return datapointQueue;
     }
 
-    private LS2Manager(Context context, String baseURL, RSCredentialStore store, String queueStorageDirectory, RSEncryptor queueEncryptor) {
+    public LS2Manager(Context context, String baseURL, RSCredentialStore store, String queueStorageDirectory, RSEncryptor queueEncryptor) {
 
         this.context = context;
         this.client = new LS2Client(baseURL);
