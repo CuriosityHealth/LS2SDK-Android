@@ -3,7 +3,7 @@ package com.curiosityhealth.ls2sdk.core.core.manager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
-import android.util.Log;
+//import android.util.Log;
 
 import com.curiosityhealth.ls2sdk.common.LS2ConcreteDatapointConverter;
 import com.curiosityhealth.ls2sdk.core.LS2ParticipantAccountGeneratorCredentials;
@@ -397,7 +397,7 @@ public class LS2Manager {
         }
 
         if (!this.client.validateSample(datapoint)) {
-            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.toJson().toString());
+//            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.toJson().toString());
 //            Log.w(TAG, datapoint);
             completion.onCompletion(new LS2ClientInvalidDataPoint());
             return;
@@ -415,7 +415,7 @@ public class LS2Manager {
         }
 
         if (!this.client.validateSample(datapoint)) {
-            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.getHeader().getId());
+//            Log.w(TAG, "Dropping datapoint, it looks like it's invalid: " + datapoint.getHeader().getId());
 //            Log.w(TAG, datapoint);
             completion.onCompletion(new LS2ClientInvalidDataPoint());
             return;
@@ -477,7 +477,7 @@ public class LS2Manager {
 //                    OhmageOMHManager.this.isUploading = false;
 
                     if (success) {
-                        Log.w(TAG, "Datapoint successfully uploaded");
+//                        Log.w(TAG, "Datapoint successfully uploaded");
                         try {
                             LS2Manager.this.datapointQueue.remove();
                         } catch (IOException e1) {
@@ -489,7 +489,7 @@ public class LS2Manager {
                         return;
                     }
 
-                    Log.e(TAG, "Got an exception trying to upload datapoint", e);
+//                    Log.e(TAG, "Got an exception trying to upload datapoint", e);
 
                     if (e instanceof LS2ClientDataPointConflict ||
                             e instanceof LS2ClientInvalidDataPoint){

@@ -2,7 +2,7 @@ package com.curiosityhealth.ls2sdk.core.rsrp;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
-import android.util.Log;
+//import android.util.Log;
 
 import com.curiosityhealth.ls2sdk.core.core.client.LS2Client;
 import com.curiosityhealth.ls2sdk.core.core.manager.LS2Manager;
@@ -71,7 +71,7 @@ public class LS2ResultBackend implements RSRPBackEnd {
                     @Override
                     public void onCompletion(Exception e) {
                         if (e != null) {
-                            Log.e(TAG, "Got an exception trying to post datapoint", e);
+//                            Log.e(TAG, "Got an exception trying to post datapoint", e);
                         }
 
                     }

@@ -1,6 +1,6 @@
 package com.curiosityhealth.ls2sdk.core.core.client;
 
-import android.util.Log;
+//import android.util.Log;
 
 import com.curiosityhealth.ls2sdk.core.LS2ParticipantAccountGeneratorCredentials;
 import com.curiosityhealth.ls2sdk.common.LS2Datapoint;
@@ -302,7 +302,7 @@ public class LS2Client {
     public boolean validateSample(LS2Datapoint sample) {
         try {
             String sampleJsonString = LS2Datapoint.Companion.getGson().toJson(sample);
-            Log.i(TAG, "validating json" + sampleJsonString);
+//            Log.i(TAG, "validating json" + sampleJsonString);
             JSONObject recodedJson = new JSONObject(sampleJsonString);
             return true;
         } catch (JSONException ex) {
@@ -317,7 +317,7 @@ public class LS2Client {
     public boolean validateSampleJson(JSONObject sampleJson) {
         try {
             String sampleJsonString = sampleJson.toString();
-            Log.i(TAG, "validating json" + sampleJsonString);
+//            Log.i(TAG, "validating json" + sampleJsonString);
             JSONObject recodedJson = new JSONObject(sampleJsonString);
             return true;
         } catch (JSONException ex) {

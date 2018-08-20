@@ -1,7 +1,7 @@
 package com.curiosityhealth.ls2sdk.database
 
 import android.content.Context
-import android.util.Log
+//import android.util.Log
 import com.curiosityhealth.ls2sdk.common.LS2Datapoint
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
@@ -99,7 +99,7 @@ class LS2DatabaseManager(
                 }
             }()
 
-            Log.d(TAG, LS2DatabaseManager.bytesToHex(databaseEncyptionKey))
+//            Log.d(TAG, LS2DatabaseManager.bytesToHex(databaseEncyptionKey))
 
             configBuilder.encryptionKey(databaseEncyptionKey)
         }
@@ -131,9 +131,9 @@ class LS2DatabaseManager(
 
         realm.close()
 
-        Log.d(TAG, this.datapointQueue.toString())
+//        Log.d(TAG, this.datapointQueue.toString())
         this.datapointQueue.remove(datapoints.size)
-        Log.d(TAG, this.datapointQueue.toString())
+//        Log.d(TAG, this.datapointQueue.toString())
 
     }
 
